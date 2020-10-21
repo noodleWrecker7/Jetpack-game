@@ -1,3 +1,6 @@
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -7,17 +10,18 @@ public class Player {
 
     private String imageUrl;
     private static String filesRoot = "assets/img/raw/";
-    private BufferedImage img;
+    private Image img;
 
     public Player() {
         imageUrl = "dino-0.png";
         try {
-            img = ImageIO.read(new File(filesRoot + imageUrl));
+            img = new Image(filesRoot + imageUrl);
         } catch (Exception e) {
         }
     }
 
-    public void draw(Graphics g) {
-        g.drawImage(img, 50, 50, 84, img.getHeight()*2, null);
+    public void draw(GraphicsContext g) {
+        g.drawImage(img, 50, 50);
+
     }
 }

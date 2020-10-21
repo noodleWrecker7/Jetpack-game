@@ -1,22 +1,16 @@
-import com.sun.xml.internal.ws.binding.FeatureListUtil;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javafx.scene.canvas.*;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
 //import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.Timer;
-import java.util.TimerTask;
+
 
 class GameData {
 
@@ -24,13 +18,12 @@ class GameData {
     static int currentJetpack = 0;
 
 
-
-
     public static void load(String path) {
         // BufferedReader reader = new BufferedReader(new FileReader(path));
     }
 
-    private GameData(){}
+    private GameData() {
+    }
 }
 
 class Game extends Canvas {
@@ -38,19 +31,24 @@ class Game extends Canvas {
     AnimationTimer timer;
     public static final int FPS = 60;
     long then;
+    GraphicsContext ctx;
 
     public Game(int w, int h) {
         StateManager.Push(new GameState());
         currentState = StateManager.Peek();
         StateManager.changed = false;
 
+        ctx = this.getGraphicsContext2D();
+
+        System.out.println("here");
         timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                update(now-then);
+                update(now - then);
                 then = now;
             }
         };
+        timer.start();
         //setSize(w, h);
 
         /*addKeyListener(new KeyListener() {
@@ -85,29 +83,33 @@ class Game extends Canvas {
 
     }
 
-    private void update(long delta){
-        System.out.println("tick");
-    }
 
-    /*@Override
-    public void paint(Graphics g) {
+    public void render(GraphicsContext g, long delta) {
         currentState.tick(g);
+        ctx.setFill(new Color(0.8, 0.1, 0.1, 0));
+        ctx.fillRect(10, 10, 80, 80);
+
     }
 
-    @Override
-    public void update(Graphics g) {
-        Graphics offgc;
 
-        Image offscreen;
+    public void update(long delta) {
+        if (StateManager.changed) {
+            currentState = StateManager.Peek();
+            StateManager.changed = false;
+        }
 
-        offscreen = createImage(getWidth(), getHeight());
-        offgc = offscreen.getGraphics();
+        GraphicsContext offgc;
 
-        paint(offgc);
+        Canvas offscreencvs;
 
-        g.drawImage(offscreen, 0, 0, this);
+        offscreencvs = new Canvas();
+        offgc = offscreencvs.getGraphicsContext2D();
 
-    }*/
+        render(ctx, delta);
+
+        ctx.drawImage(offscreencvs.snapshot(null, new WritableImage(1200, 800)), 0, 0);
+
+    }
 
     public void keyDown(int e) {
         currentState.keyDown(e);
@@ -131,6 +133,19 @@ public class MainApplication extends Application {
     // todo use scenes instead of states, self contained easier to implement
     // todo use animation timer to implement handle method which calls stage.getScene.update
 
+    State currentGameState;
+    AnimationTimer timer;
+    public static final int FPS = 60;
+    long then;
+
+    public MainApplication() {
+        StateManager.Push(new GameState());
+        currentGameState = StateManager.Peek();
+        StateManager.changed = false;
+
+
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         GAME = new Game(1200, 800);
@@ -146,13 +161,17 @@ public class MainApplication extends Application {
 //        frame.pack();
 //        GAME.createBufferStrategy(3);
 //        background.getGraphicsContext2D().drawImage(ImageIO.read(new File("assets/img/raw/background.png")), 0,0, null); // todo add background canvas for image
-        Group group = new Group(GAME);
+        Group group = new Group();
+        group.setVisible(true);
+        GAME.setVisible(true);
         Scene scene = new Scene(group, 1200, 800);
         primaryStage.setScene(scene);
+        group.getChildren().add(GAME);
         primaryStage.show();
 
 
     }
+
 
     public static void main(String args[]) {
         Application.launch();

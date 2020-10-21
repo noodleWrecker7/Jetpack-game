@@ -1,3 +1,5 @@
+import javafx.scene.canvas.GraphicsContext;
+
 import java.awt.*;
 
 abstract public class State {
@@ -10,7 +12,7 @@ abstract public class State {
 
     }
 
-    public void tick(Graphics g){
+    public void tick(GraphicsContext g){
 
     }
 

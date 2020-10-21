@@ -1,11 +1,10 @@
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.io.File;
+import javafx.scene.canvas.GraphicsContext;
+
+
 
 //import javafx.scene.image.Image;
 
-import javax.imageio.ImageIO;
+//import javax.imageio.ImageIO;
 
 public class GameState extends State {
 
@@ -20,9 +19,9 @@ public class GameState extends State {
 
     }
 
-    public void tick(Graphics g) {
+    public void tick(GraphicsContext g) {
         if (!started) {
-            g.drawString("Press space to start", MainApplication.GAME.getWidth() / 2, MainApplication.GAME.getHeight() / 2);
+            g.fillText("Press space to start", MainApplication.GAME.getWidth() / 2, MainApplication.GAME.getHeight() / 2);
             //return;
         }
         player.draw(g);
