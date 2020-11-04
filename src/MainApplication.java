@@ -37,6 +37,8 @@ class Game extends Canvas {
         StateManager.Push(new GameState());
         currentState = StateManager.Peek();
         StateManager.changed = false;
+        setWidth(w);
+        setHeight(h);
 
         ctx = this.getGraphicsContext2D();
 
@@ -86,7 +88,7 @@ class Game extends Canvas {
 
     public void render(GraphicsContext g, long delta) {
         currentState.tick(g);
-        ctx.setFill(new Color(0.8, 0.1, 0.1, 0));
+        ctx.setFill(Color.RED);
         ctx.fillRect(10, 10, 80, 80);
 
     }
@@ -161,13 +163,17 @@ public class MainApplication extends Application {
 //        frame.pack();
 //        GAME.createBufferStrategy(3);
 //        background.getGraphicsContext2D().drawImage(ImageIO.read(new File("assets/img/raw/background.png")), 0,0, null); // todo add background canvas for image
-        Group group = new Group();
-        group.setVisible(true);
-        GAME.setVisible(true);
+        Canvas c = GAME;
+        Group group = new Group(c);
         Scene scene = new Scene(group, 1200, 800);
         primaryStage.setScene(scene);
-        group.getChildren().add(GAME);
+        group.setVisible(true);
+        GAME.setVisible(true);
+//        Scene scene = new Scene(group, 1200, 800);
+//        primaryStage.setScene(scene);
+//        group.getChildren().add(GAME);
         primaryStage.show();
+        primaryStage.setTitle("Game ting");
 
 
     }
