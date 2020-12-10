@@ -1,5 +1,8 @@
+import Obstacles.*;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCode;
 
+import java.util.Date;
 
 
 //import javafx.scene.image.Image;
@@ -8,36 +11,65 @@ import javafx.scene.canvas.GraphicsContext;
 
 public class GameState extends State {
 
+    Date date, date2;
+    long t1, t2;
+
     private boolean started = false;
     private Player player;
-
+    private Obstacle zapper;
+    private float xSpeed = 100.f; // pixels/second
 
     public GameState() {
 
         player = new Player();
 
-
+        zapper = new Zapper(100, 100, 500, 500);
     }
 
-    public void tick(GraphicsContext g) {
-        if (!started) {
-            g.fillText("Press space to start", MainApplication.GAME.getWidth() / 2, MainApplication.GAME.getHeight() / 2);
-            //return;
-        }
+    public void render(GraphicsContext g) {
         player.draw(g);
 
-
+        zapper.draw(g, GameData.runDistance);
     }
 
-    public void keyDown(int e) {
-        System.out.println(e);
-        if (e == 74) {
-            StateManager.Push(new GameState());
+    public void tick(GraphicsContext g, float delta) {
+        if (!started) {
+            g.fillText("Press space to start", MainApplication.GAME.getWidth() / 2, MainApplication.GAME.getHeight() / 2);
+            return;
+        }
+//        long t1 = new Date().getTime();
+        player.tick(delta);
+
+
+        if (zapper.isColliding(player.getX(), player.getY(), player.getWidth(), player.getHeight(), GameData.runDistance)){
+            System.out.println("COLLISION");
+        }
+
+
+            GameData.runDistance += xSpeed * delta;
+//        long t2 = new Date().getTime();
+        render(g);
+    }
+
+    public void keyDown(KeyCode e) {
+        if (!started) {
+            started = true;
+            return;
+        }
+
+        switch (e) {
+            case SPACE:
+                player.boost(true);
+                break;
         }
     }
 
-    public void keyUp(int e) {
-
+    public void keyUp(KeyCode e) {
+        switch (e) {
+            case SPACE:
+                player.boost(false);
+                break;
+        }
     }
 
     @Override

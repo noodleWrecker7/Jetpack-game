@@ -1,4 +1,5 @@
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCode;
 
 import java.awt.*;
 
@@ -12,15 +13,15 @@ abstract public class State {
 
     }
 
-    public void tick(GraphicsContext g){
+    public void tick(GraphicsContext g, float delta){
 
     }
 
-    public void keyDown(int e) {
+    public void keyDown(KeyCode e) {
 
     }
 
-    public void keyUp(int e) {
+    public void keyUp(KeyCode e) {
 
     }
 }

@@ -1,13 +1,18 @@
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javafx.scene.canvas.*;
+
+import java.util.Date;
 
 //import java.awt.*;
 
@@ -16,14 +21,13 @@ class GameData {
 
     static int coins = 0;
     static int currentJetpack = 0;
-
+    static boolean paused = false;
+    static long runDistance = 0;
 
     public static void load(String path) {
         // BufferedReader reader = new BufferedReader(new FileReader(path));
     }
 
-    private GameData() {
-    }
 }
 
 class Game extends Canvas {
@@ -40,35 +44,36 @@ class Game extends Canvas {
         setWidth(w);
         setHeight(h);
 
+        this.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                currentState.keyDown(event.getCode());
+            }
+        });
+        setOnKeyReleased(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                currentState.keyUp(event.getCode());
+            }
+        });
+
         ctx = this.getGraphicsContext2D();
 
         System.out.println("here");
+        then = new Date().getTime() * 1000000;
         timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                update(now - then);
-                then = now;
+                //if(GameData.startingFrame &&  > )
+//                System.out.println((float)(now - then) / 1000000000f);
+                update((float)(now - then) / 1000000000f);
+                then = (now);
             }
         };
         timer.start();
+
         //setSize(w, h);
 
-        /*addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                // nah
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                keyDown(e.getKeyCode());
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                keyUp(e.getKeyCode());
-            }
-        });*/
 
         /*Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -86,40 +91,28 @@ class Game extends Canvas {
     }
 
 
-    public void render(GraphicsContext g, long delta) {
-        currentState.tick(g);
-        ctx.setFill(Color.RED);
-        ctx.fillRect(10, 10, 80, 80);
-
-    }
-
-
-    public void update(long delta) {
+    public void update(float delta) {
         if (StateManager.changed) {
             currentState = StateManager.Peek();
             StateManager.changed = false;
         }
+        if(GameData.paused) {
+            return;
+        }
+//        System.out.println("Delta (s): " + delta);
+        ctx.clearRect(0,0,this.getWidth(), this.getHeight());
+        currentState.tick(ctx, delta);
 
-        GraphicsContext offgc;
-
-        Canvas offscreencvs;
-
-        offscreencvs = new Canvas();
-        offgc = offscreencvs.getGraphicsContext2D();
-
-        render(ctx, delta);
-
-        ctx.drawImage(offscreencvs.snapshot(null, new WritableImage(1200, 800)), 0, 0);
 
     }
 
-    public void keyDown(int e) {
+    /*public void keyDown(KeyCode e) {
         currentState.keyDown(e);
     }
 
     public void keyUp(int e) {
         currentState.keyUp(e);
-    }
+    }*/
 
 
 }
@@ -151,9 +144,12 @@ public class MainApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         GAME = new Game(1200, 800);
+        GAME.setFocusTraversable(true);
         Canvas background = new Canvas();
         background.setWidth(1200);
         background.setHeight(800);
+        background.getGraphicsContext2D().drawImage(new Image("file:assets/img/raw/background.png"), 0,0, 1200, 800);
+
         //JFrame frame = new JFrame("Jetpack Joyride 2");
 //        frame.setResizable(true);
 //        frame.setVisible(true);
@@ -163,17 +159,15 @@ public class MainApplication extends Application {
 //        frame.pack();
 //        GAME.createBufferStrategy(3);
 //        background.getGraphicsContext2D().drawImage(ImageIO.read(new File("assets/img/raw/background.png")), 0,0, null); // todo add background canvas for image
-        Canvas c = GAME;
-        Group group = new Group(c);
-        Scene scene = new Scene(group, 1200, 800);
-        primaryStage.setScene(scene);
+        Group group = new Group();
         group.setVisible(true);
         GAME.setVisible(true);
-//        Scene scene = new Scene(group, 1200, 800);
-//        primaryStage.setScene(scene);
-//        group.getChildren().add(GAME);
+        background.setVisible(true);
+        Scene scene = new Scene(group, 1200, 800);
+        primaryStage.setScene(scene);
+        group.getChildren().add(background);
+        group.getChildren().add(GAME);
         primaryStage.show();
-        primaryStage.setTitle("Game ting");
 
 
     }
